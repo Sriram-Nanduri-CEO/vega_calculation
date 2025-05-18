@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Greek Difference Calculator (Theta, Delta, Vega)</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f5f7fa;
+      padding: 30px;
+    }
+
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      font-size: 14px;
+    }
+
+    th, td {
+      padding: 8px;
+      border: 1px solid #ccc;
+      text-align: center;
+    }
+
+    th {
+      background-color: #0066cc;
+      color: white;
+    }
+
+    tr:nth-child(even) {
+      background-color: #f2f2f2;
+    }
+
+    input[type="number"] {
+      width: 80px;
+      padding: 5px;
+      text-align: right;
+    }
+
+    .totals {
+      background-color: #e6f7ff;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+<h1>Greek Difference Calculator (Theta, Delta, Vega)</h1>
+
+<table id="greekTable">
+  <thead>
+    <tr>
+      <th>#</th>
+      <th>Theta @ 9:16</th>
+      <th>Theta Now</th>
+      <th>ΔTheta</th>
+      <th>Delta @ 9:16</th>
+      <th>Delta Now</th>
+      <th>ΔDelta</th>
+      <th>Vega @ 9:16</th>
+      <th>Vega Now</th>
+      <th>ΔVega</th>
+    </tr>
+  </thead>
+  <tbody id="tableBody">
+    <!-- Rows will be added dynamically -->
+  </tbody>
+  <tfoot>
+    <tr class="totals">
+      <td colspan="3">Total ΔTheta</td>
+      <td id="totalTheta">0.00</td>
+      <td colspan="2">Total ΔDelta</td>
+      <td id="totalDelta">0.00</td>
+      <td colspan="2">Total ΔVega</td>
+      <td id="totalVega">0.00</td>
+    </tr>
+  </tfoot>
+</table>
+
+<script>
+  const tableBody = document.getElementById('tableBody');
+  const totalThetaCell = document.getElementById('totalTheta');
+  const totalDeltaCell = document.getElementById('totalDelta');
+  const totalVegaCell = document.getElementById('totalVega');
+
+  // Generate 50 rows
+  for (let i = 1; i <= 50; i++) {
+    const row = document.createElement('tr');
+    row.innerHTML = `
+      <td>${i}</td>
+      <td><input type="number" step="0.01" class="theta916" oninput="calculateDifferences()"></td>
+      <td><input type="number" step="0.01" class="thetaNow" oninput="calculateDifferences()"></td>
+      <td class="deltaTheta">0.00</td>
+
+      <td><input type="number" step="0.01" class="delta916" oninput="calculateDifferences()"></td>
+      <td><input type="number" step="0.01" class="deltaNow" oninput="calculateDifferences()"></td>
+      <td class="deltaDelta">0.00</td>
+
+      <td><input type="number" step="0.01" class="vega916" oninput="calculateDifferences()"></td>
+      <td><input type="number" step="0.01" class="vegaNow" oninput="calculateDifferences()"></td>
+      <td class="deltaVega">0.00</td>
+    `;
+    tableBody.appendChild(row);
+  }
+
+  function calculateDifferences() {
+    const theta916 = document.querySelectorAll('.theta916');
+    const thetaNow = document.querySelectorAll('.thetaNow');
+    const thetaDiffs = document.querySelectorAll('.deltaTheta');
+
+    const delta916 = document.querySelectorAll('.delta916');
+    const deltaNow = document.querySelectorAll('.deltaNow');
+    const deltaDiffs = document.querySelectorAll('.deltaDelta');
+
+    const vega916 = document.querySelectorAll('.vega916');
+    const vegaNow = document.querySelectorAll('.vegaNow');
+    const vegaDiffs = document.querySelectorAll('.deltaVega');
+
+    let totalTheta = 0;
+    let totalDelta = 0;
+    let totalVega = 0;
+
+    for (let i = 0; i < 50; i++) {
+      const t916 = parseFloat(theta916[i].value) || 0;
+      const tNow = parseFloat(thetaNow[i].value) || 0;
+      const tDiff = tNow - t916;
+      thetaDiffs[i].textContent = tDiff.toFixed(2);
+      totalTheta += tDiff;
+
+      const d916 = parseFloat(delta916[i].value) || 0;
+      const dNow = parseFloat(deltaNow[i].value) || 0;
+      const dDiff = dNow - d916;
+      deltaDiffs[i].textContent = dDiff.toFixed(2);
+      totalDelta += dDiff;
+
+      const v916 = parseFloat(vega916[i].value) || 0;
+      const vNow = parseFloat(vegaNow[i].value) || 0;
+      const vDiff = vNow - v916;
+      vegaDiffs[i].textContent = vDiff.toFixed(2);
+      totalVega += vDiff;
+    }
+
+    totalThetaCell.textContent = totalTheta.toFixed(2);
+    totalDeltaCell.textContent = totalDelta.toFixed(2);
+    totalVegaCell.textContent = totalVega.toFixed(2);
+  }
+</script>
+
+</body>
+</html>
