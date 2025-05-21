@@ -10,7 +10,7 @@
       padding: 30px;
     }
 
-    h1 {
+    h1, h2 {
       text-align: center;
       color: #333;
     }
@@ -37,7 +37,7 @@
       background-color: #f2f2f2;
     }
 
-    input[type="number"] {
+    input[type="number"], input[type="file"] {
       width: 80px;
       padding: 5px;
       text-align: right;
@@ -47,11 +47,31 @@
       background-color: #e6f7ff;
       font-weight: bold;
     }
+
+    #upload-section {
+      text-align: center;
+      margin: 30px 0;
+    }
+
+    #upload-section input[type="file"] {
+      width: auto;
+    }
+
+    #upload-section button {
+      padding: 10px 20px;
+      margin-left: 10px;
+    }
   </style>
 </head>
 <body>
 
 <h1>Greek Difference Calculator (Theta, Delta, Vega)</h1>
+
+<div id="upload-section">
+  <h2>Upload Screenshot to Autofill Row 1</h2>
+  <input type="file" id="imgUpload" accept="image/*">
+  <button onclick="uploadImage()">Upload & Extract</button>
+</div>
 
 <table id="greekTable">
   <thead>
@@ -149,6 +169,45 @@
     totalThetaCell.textContent = totalTheta.toFixed(2);
     totalDeltaCell.textContent = totalDelta.toFixed(2);
     totalVegaCell.textContent = totalVega.toFixed(2);
+  }
+
+  async function uploadImage() {
+    const fileInput = document.getElementById('imgUpload');
+    if (!fileInput.files[0]) {
+      alert("Please choose an image.");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('screenshot', fileInput.files[0]);
+
+    try {
+      const res = await fetch('/upload-image', {
+        method: 'POST',
+        body: formData
+      });
+      const data = await res.json();
+
+      if (data.error) {
+        alert("OCR failed: " + data.error);
+        return;
+      }
+
+      // Fill first row
+      const row = tableBody.querySelector('tr');
+      row.querySelector('.theta916').value = data.teta || 0;
+      row.querySelector('.thetaNow').value = data.teta || 0;
+      row.querySelector('.delta916').value = data.delta || 0;
+      row.querySelector('.deltaNow').value = data.delta || 0;
+      row.querySelector('.vega916').value = data.vega || 0;
+      row.querySelector('.vegaNow').value = data.vega || 0;
+
+      calculateDifferences();
+
+    } catch (err) {
+      console.error(err);
+      alert("Error uploading image.");
+    }
   }
 </script>
 
